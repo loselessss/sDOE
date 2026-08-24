@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+venv/
+
+# Streamlit and local state
+.streamlit/secrets.toml
+
+# Build artifacts
+build/
+dist/
+installer_output/
+*.spec.bak
+
+# Runtime and test logs
+*.log
+
+# User experiment data and generated exports
+*.csv
+*.xlsx
+*.xls
+*.glb
+*.obj
+*.mtl
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
