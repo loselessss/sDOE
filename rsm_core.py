@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 
 from rsm_config import RESPONSE_COLUMNS
+from rsm_i18n import t
 
 
 @dataclass
@@ -261,7 +262,7 @@ def coefficient_table(result: FitResult) -> pd.DataFrame:
             labels.append(f"{result.factors[idxs[0]]}^2")
         else:
             labels.append(f"{result.factors[idxs[0]]} x {result.factors[idxs[1]]}")
-    return pd.DataFrame({"항": labels, "계수": result.beta})
+    return pd.DataFrame({t("항"): labels, t("계수"): result.beta})
 
 
 def gradient_components(result: FitResult) -> tuple[np.ndarray, np.ndarray]:
@@ -346,5 +347,4 @@ def predict_grid(
     grid_x = np.column_stack(rows)
     zz = design_matrix(grid_x, result.terms) @ result.beta
     return xx, yy, zz.reshape(xx.shape)
-
 

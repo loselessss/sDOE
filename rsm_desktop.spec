@@ -14,6 +14,7 @@ local_modules = [
     "rsm_design",
     "rsm_design_ui",
     "rsm_export",
+    "rsm_i18n",
     "rsm_plots",
     "rsm_result_ui",
     "rsm_state",

@@ -16,6 +16,14 @@ import os
 from pathlib import Path
 import sys
 
+from rsm_i18n import (
+    LANGUAGE_LABELS,
+    get_language,
+    install_streamlit_translation,
+    load_preferred_language,
+    save_preferred_language,
+    set_language,
+)
 
 REQUIRED_PACKAGES = {
     "streamlit": "streamlit",
@@ -76,11 +84,53 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="DOE RSM 분석",
+    page_title="sDOE | DOE RSM",
     page_icon=str(Path(__file__).resolve().parent / "assets" / "rsm_icon.png"),
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+preferred_language = load_preferred_language()
+if "_app_language" not in st.session_state:
+    st.session_state["_app_language"] = preferred_language
+
+if st.session_state.get("_app_language") not in LANGUAGE_LABELS:
+    st.title("sDOE")
+    st.caption("실험설계와 RSM 분석 / DOE design and RSM analysis")
+    language_choice = st.segmented_control(
+        "언어 / Language",
+        options=list(LANGUAGE_LABELS),
+        format_func=lambda language: LANGUAGE_LABELS[language],
+        selection_mode="single",
+        key="initial_language_choice",
+    )
+    if st.button(
+        "시작 / Start",
+        type="primary",
+        disabled=language_choice not in LANGUAGE_LABELS,
+        width="stretch",
+    ):
+        save_preferred_language(str(language_choice))
+        st.session_state["_app_language"] = language_choice
+        st.rerun()
+    st.stop()
+
+set_language(str(st.session_state["_app_language"]))
+install_streamlit_translation()
+
+with st.sidebar:
+    selected_language = st.selectbox(
+        "언어 / Language",
+        options=list(LANGUAGE_LABELS),
+        index=list(LANGUAGE_LABELS).index(get_language()),
+        format_func=lambda language: LANGUAGE_LABELS[language],
+        key="app_language_selector",
+    )
+if selected_language != get_language():
+    save_preferred_language(selected_language)
+    st.session_state["_app_language"] = selected_language
+    st.rerun()
 
 
 from rsm_core import normalize_name, read_uploaded_table

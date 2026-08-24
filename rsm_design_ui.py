@@ -3,10 +3,10 @@ from __future__ import annotations
 import html
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from rsm_config import RESPONSE_COLUMNS, term_help
 from rsm_design import *
+from rsm_i18n import get_language, t
 from rsm_state import round_decimal_input_state
 
 
@@ -24,10 +24,10 @@ def render_design_print_button(
 ) -> None:
     print_df = design_preview.loc[:, preview_columns].rename(
         columns={
-            "StdOrder": "설계순번",
-            "Run": "실행순번",
-            "Batch": "배치번호",
-            "PointType": "포인트타입",
+            "StdOrder": t("설계순번"),
+            "Run": t("실행순번"),
+            "Batch": t("배치번호"),
+            "PointType": t("포인트타입"),
             **{
                 column: preview_labels.get(column, column).replace("\n", " / ")
                 for column in preview_columns
@@ -53,7 +53,7 @@ def render_design_print_button(
     )
     printable_html = f"""
     <!doctype html>
-    <html lang="ko">
+    <html lang="{get_language()}">
     <head>
       <meta charset="utf-8">
       <style>
@@ -91,23 +91,23 @@ def render_design_print_button(
       </style>
     </head>
     <body>
-      <button class="print-button" type="button" onclick="window.print()">실험계획 인쇄</button>
+      <button class="print-button" type="button" onclick="window.print()">{t("실험계획 인쇄")}</button>
       <main class="print-sheet">
-        <h1>실험계획</h1>
+        <h1>{t("실험계획")}</h1>
         <div class="meta">
-          <span><strong>설계:</strong> {html.escape(design_name)}</span>
-          <span><strong>요인 수:</strong> {factor_count}</span>
-          <span><strong>중심점:</strong> {int(center_points)}</span>
+          <span><strong>{t("설계")}:</strong> {html.escape(design_name)}</span>
+          <span><strong>{t("요인 수")}:</strong> {factor_count}</span>
+          <span><strong>{t("중심점")}:</strong> {int(center_points)}</span>
           <span><strong>Batch:</strong> {int(batch_count)}</span>
           <span><strong>Seed:</strong> {int(random_seed)}</span>
         </div>
         <div class="plan-details">
           <table class="ranges">
-            <thead><tr><th>요인</th><th>최소값</th><th>최대값</th></tr></thead>
+            <thead><tr><th>{t("요인")}</th><th>{t("최소값")}</th><th>{t("최대값")}</th></tr></thead>
             <tbody>{range_rows}</tbody>
           </table>
           <section class="notes">
-            <strong>참고사항</strong>
+            <strong>{t("참고사항")}</strong>
             <div class="notes-content">{notes_html}</div>
           </section>
         </div>
@@ -116,7 +116,7 @@ def render_design_print_button(
     </body>
     </html>
     """
-    components.html(printable_html, height=44, scrolling=False)
+    st.iframe(printable_html, height=44)
 
 
 def build_generated_design(

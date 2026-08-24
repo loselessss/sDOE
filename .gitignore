@@ -12,6 +12,7 @@ venv/
 build/
 dist/
 installer_output/
+portable_output/
 *.spec.bak
 
 # Runtime and test logs
@@ -30,4 +31,3 @@ installer_output/
 .vscode/
 .DS_Store
 Thumbs.db
-

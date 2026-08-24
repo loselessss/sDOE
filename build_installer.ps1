@@ -1,5 +1,6 @@
 param(
-    [switch]$SkipClean
+    [switch]$SkipClean,
+    [switch]$SkipAppBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,7 +18,8 @@ if (-not (Test-Path -LiteralPath $InnoCompiler)) {
 Set-Location -LiteralPath $ProjectRoot
 
 if (-not $SkipClean) {
-    foreach ($relativePath in @("build", "dist\DOE_RSM", "installer_output")) {
+    $cleanPaths = if ($SkipAppBuild) { @("installer_output") } else { @("build", "dist\DOE_RSM", "installer_output") }
+    foreach ($relativePath in $cleanPaths) {
         $target = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot $relativePath))
         if (-not $target.StartsWith($ProjectRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "Refusing to clean outside project: $target"
@@ -28,9 +30,15 @@ if (-not $SkipClean) {
     }
 }
 
-& $Python -m PyInstaller --noconfirm --clean "rsm_desktop.spec"
-if ($LASTEXITCODE -ne 0) {
-    throw "PyInstaller build failed with exit code $LASTEXITCODE"
+if (-not $SkipAppBuild) {
+    & $Python -m PyInstaller --noconfirm --clean "rsm_desktop.spec"
+    if ($LASTEXITCODE -ne 0) {
+        throw "PyInstaller build failed with exit code $LASTEXITCODE"
+    }
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot "dist\DOE_RSM\DOE_RSM.exe"))) {
+    throw "Desktop build not found. Run without -SkipAppBuild first."
 }
 
 & $InnoCompiler "rsm_setup.iss"

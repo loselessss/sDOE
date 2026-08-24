@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from rsm_i18n import is_english, t
 
-APP_BUILD_VERSION = "2026.08.11-v63"
+APP_BUILD_VERSION = "2026.08.24-v64"
 RESPONSE_COLUMNS = ["Y1", "Y2", "Y3", "Y4", "Y5", "Y6"]
 
 TERM_HELP = {
@@ -34,6 +35,41 @@ TERM_HELP = {
     "설계 추정": "입력된 요인점 배치를 기준으로 앱이 추정한 실험설계 종류입니다.",
 }
 
+TERM_HELP_EN = {
+    "RSM": "Response Surface Methodology. Fits a quadratic regression model to explore factor-response relationships, curvature, and optimum settings.",
+    "CCD": "Central Composite Design. Uses factorial, axial, and center points. It supports rotatability, but axial points may exceed the entered factor ranges.",
+    "CCI": "Central Composite Inscribed. Places axial points at the entered limits and scales factorial points inward.",
+    "CCF": "Central Composite Face-centered. Places axial points at the center of each factor-range face so every run remains inside the entered ranges.",
+    "Box-Behnken": "An RSM design for three or more factors that varies two factors at a time without using all extreme corners.",
+    "Full factorial": "Tests every low/high factor combination. Adding center points alone may still provide weak quadratic-term estimation.",
+    "Run": "One individual experiment performed in the actual execution sequence.",
+    "Batch": "A group of runs performed under the same period or operating condition. Center points in each batch help assess within-batch error.",
+    "중심점": "A replicated run with every factor at its midpoint. Center points support pure-error and curvature estimation.",
+    "seed": "The starting value for randomization. Reusing a seed reproduces the same randomized run order.",
+    "Point type": "The role of a design point. Design indicates factorial or axial points, while Center indicates center points.",
+    "StdOrder": "The canonical order defined by the design before run-order randomization.",
+    "coded": "A scaled factor value with the center at 0. Coding allows factors with different units to be compared on a common scale.",
+    "Contour": "A two-dimensional plot joining factor combinations with equal predicted response values.",
+    "3D Surface": "A three-dimensional response surface that uses height and color to show predicted response values.",
+    "Prediction Profiler": "Shows how each factor changes the predicted response while other factors are held at current settings.",
+    "Contour Profiler": "An optimization view combining response limits, contours, and current factor settings.",
+    "Predicted Plot": "Compares observed values, model predictions, and residuals to assess fit and unusual patterns.",
+    "ANOVA": "Analysis of Variance. Tests whether the regression model explains a statistically significant portion of response variation.",
+    "Lack of fit": "Compares model residuals with pure error from replicated settings. A small p-value may indicate an inadequate model form.",
+    "R²": "The proportion of response variation explained by the model. A high value alone does not guarantee an adequate model.",
+    "Adjusted R²": "R² adjusted for sample size and number of model terms, reducing artificial gains from unnecessary terms.",
+    "정상점": "A point where the fitted response-surface gradient is zero. It may be a maximum, minimum, or saddle point.",
+    "Hessian": "The matrix of second derivatives. Eigenvalue signs classify the stationary point as a maximum, minimum, or saddle point.",
+    "Desirability": "A 0-to-1 score indicating how well a predicted response meets the target and limits. Values near 1 are more desirable.",
+    "유효 행": "Rows with numeric values in every selected X and Y column and therefore used for model fitting.",
+    "설계 추정": "The design type inferred from the arrangement of factor settings in the input data.",
+}
+
 
 def term_help(*terms: str) -> str:
-    return "\n\n".join(f"**{term}**: {TERM_HELP[term]}" for term in terms if term in TERM_HELP)
+    source = TERM_HELP_EN if is_english() else TERM_HELP
+    return "\n\n".join(
+        f"**{t(term)}**: {source[term]}"
+        for term in terms
+        if term in source
+    )

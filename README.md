@@ -1,6 +1,6 @@
 # sDOE
 
-DOE 실험설계 생성, 결과 입력, RSM 분석을 한 화면에서 수행하는 한국어 Streamlit 데스크톱 앱입니다.
+DOE 실험설계 생성, 결과 입력, RSM 분석을 한 화면에서 수행하는 한국어/영어 Streamlit 데스크톱 앱입니다. 첫 실행에서 `한국어` 또는 `International (English)`을 선택할 수 있습니다.
 
 ![sDOE icon](assets/rsm_icon.png)
 
@@ -17,6 +17,7 @@ DOE 실험설계 생성, 결과 입력, RSM 분석을 한 화면에서 수행하
 - 정상점 계산, Hessian 고유값 기반 최대·최소·안장점 분류
 - CSV, Excel, HTML, PNG, GLB 결과 저장
 - pywebview 기반 Windows 데스크톱 실행 및 Inno Setup 설치본
+- 설치 없이 압축을 풀어 실행하는 Windows 포터블 ZIP
 
 ## Python으로 실행
 
@@ -51,6 +52,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build_installer.ps1
 ```
 
 완성된 설치 파일은 `installer_output` 폴더에 생성됩니다. 설치본에는 Python과 pywebview 의존성이 포함되므로 사용자 PC에 별도로 설치할 필요가 없습니다. Windows WebView2 Runtime은 운영체제에 설치되어 있어야 합니다.
+이미 PyInstaller 빌드가 있다면 `-SkipAppBuild`로 설치본만 다시 만들 수 있습니다.
+
+## Windows 포터블 버전 빌드
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build_portable.ps1
+```
+
+완성된 ZIP은 `portable_output` 폴더에 생성됩니다. 포터블판은 언어 설정, 로그, WebView 데이터를 압축을 푼 폴더의 `data` 안에 저장하므로 폴더 전체를 함께 이동해야 합니다. 이미 PyInstaller 빌드가 있다면 `-SkipAppBuild`를 사용할 수 있습니다.
 
 ## 파일 구성
 
@@ -62,8 +72,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build_installer.ps1
 - `rsm_export.py`, `rsm_3d.py`: Excel 및 3D 파일 내보내기
 - `rsm_desktop_launcher.py`: pywebview 데스크톱 런처
 - `rsm_desktop.spec`, `rsm_setup.iss`: Windows 패키징 설정
+- `rsm_i18n.py`: 한국어/영어 UI 번역과 언어 설정 저장
+- `build_portable.ps1`: 포터블 ZIP 패키징
 
 ## 데이터 형식
 
 요인 열은 `X1`, `X2`, 선택적으로 `X3`를 사용합니다. 반응 열은 `Y1`부터 `Y6`까지 지원합니다. 앱에서 생성한 실험계획 CSV를 사용하면 실행순번, Batch, 포인트 유형, 실제 요인값과 coded 값이 함께 유지됩니다.
-

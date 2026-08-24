@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from rsm_core import *
+from rsm_i18n import t
 from rsm_statistics import *
 
 
@@ -140,10 +141,10 @@ def design_result_labels(
     multiline: bool = False,
 ) -> dict[str, str]:
     labels = {
-        "StdOrder": "설계순번",
-        "Run": "실행순번",
-        "Batch": "배치번호",
-        "PointType": "포인트타입",
+        "StdOrder": t("설계순번"),
+        "Run": t("실행순번"),
+        "Batch": t("배치번호"),
+        "PointType": t("포인트타입"),
     }
     for factor in factors:
         factor_code = (factor_codes or {}).get(factor, factor)
@@ -211,6 +212,18 @@ def normalize_design_csv_columns(
         factor_codes,
     )
     reverse_labels = {display_name: column for column, display_name in display_labels.items()}
+    reverse_labels.update(
+        {
+            "설계순번": "StdOrder",
+            "Standard order": "StdOrder",
+            "실행순번": "Run",
+            "Run": "Run",
+            "배치번호": "Batch",
+            "Batch": "Batch",
+            "포인트타입": "PointType",
+            "Point type": "PointType",
+        }
+    )
     for factor in factors:
         factor_code = (factor_codes or {}).get(factor, factor)
         factor_column = factor
@@ -462,4 +475,3 @@ def valid_response_columns(data: pd.DataFrame, factors: list[str], candidates: l
             if len(numeric) > 0:
                 responses.append(y_name)
     return responses
-

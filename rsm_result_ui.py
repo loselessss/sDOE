@@ -10,6 +10,7 @@ import streamlit as st
 from rsm_config import APP_BUILD_VERSION, term_help
 from rsm_core import *
 from rsm_design import *
+from rsm_i18n import t
 from rsm_state import *
 from rsm_table_component import DESIGN_RESPONSE_TABLE_COMPONENT
 
@@ -362,6 +363,7 @@ def render_generated_result_input(
                 "integer_columns": sorted(integer_columns),
                 "column_widths": saved_column_widths,
                 "column_labels": table_column_labels,
+                "resize_title": t("열 너비 조절"),
             },
             key=table_component_key,
             on_edit_change=lambda: capture_design_table_edit(table_component_key, table_store_key),

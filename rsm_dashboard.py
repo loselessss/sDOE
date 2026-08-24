@@ -9,6 +9,7 @@ from rsm_config import term_help
 from rsm_core import *
 from rsm_design import *
 from rsm_export import *
+from rsm_i18n import t
 from rsm_plots import *
 from rsm_statistics import *
 
@@ -74,6 +75,7 @@ def render_rsm_dashboard(
     )
     stationary = compute_stationary_point(result)
     design_label, design_note = design_info or detect_design_type(model_df, factors)
+    design_label, design_note = t(design_label), t(design_note)
 
     if result.rank < param_count:
         st.warning("설계행렬의 rank가 부족합니다. 일부 계수가 독립적으로 추정되지 않을 수 있습니다.")
@@ -375,39 +377,45 @@ def render_rsm_dashboard(
         details_left, details_right = st.columns([1, 1])
         with details_left:
             st.subheader("계수")
+            coefficient_column = t("계수")
             st.dataframe(
-                coefficient_table(result).style.format({"계수": "{:.4f}"}),
+                coefficient_table(result).style.format({coefficient_column: "{:.4f}"}),
                 width="stretch",
                 hide_index=True,
             )
         with details_right:
             st.subheader("정상점", help=term_help("정상점", "Hessian"))
-            st.write(stationary.message)
-            st.write(f"분류: **{stationary.classification}**")
+            st.write(t(stationary.message))
+            st.write(f"{t('분류')}: **{t(stationary.classification)}**")
             st.dataframe(
-                pd.DataFrame({"Hessian 고유값": stationary.eigenvalues}).style.format("{:.4f}"),
+                pd.DataFrame({t("Hessian 고유값"): stationary.eigenvalues}).style.format("{:.4f}"),
                 width="stretch",
                 hide_index=True,
             )
             if stationary.point is not None:
+                factor_column = t("요인")
+                point_column = t("정상점 값")
+                minimum_column = t("실험 최소")
+                maximum_column = t("실험 최대")
+                in_range_column = t("범위 내")
                 point_df = pd.DataFrame(
                     {
-                        "요인": factors,
-                        "정상점 값": stationary.point,
-                        "실험 최소": [result.x_min[factor] for factor in factors],
-                        "실험 최대": [result.x_max[factor] for factor in factors],
+                        factor_column: factors,
+                        point_column: stationary.point,
+                        minimum_column: [result.x_min[factor] for factor in factors],
+                        maximum_column: [result.x_max[factor] for factor in factors],
                     }
                 )
-                point_df["범위 내"] = (
-                    (point_df["정상점 값"] >= point_df["실험 최소"])
-                    & (point_df["정상점 값"] <= point_df["실험 최대"])
+                point_df[in_range_column] = (
+                    (point_df[point_column] >= point_df[minimum_column])
+                    & (point_df[point_column] <= point_df[maximum_column])
                 )
                 st.dataframe(
-                    point_df.style.format({"정상점 값": "{:.4f}", "실험 최소": "{:.4f}", "실험 최대": "{:.4f}"}),
+                    point_df.style.format({point_column: "{:.4f}", minimum_column: "{:.4f}", maximum_column: "{:.4f}"}),
                     width="stretch",
                     hide_index=True,
                 )
-                if not bool(point_df["범위 내"].all()):
+                if not bool(point_df[in_range_column].all()):
                     st.warning("정상점이 실험 범위 밖에 있습니다. 외삽 영역의 예측값이므로 해석에 주의하세요.")
                 st.metric(
                     "정상점 예측 반응값",
@@ -450,6 +458,5 @@ def render_rsm_dashboard(
         width="stretch",
         key=f"{key_prefix}_rsm_results_xlsx_{response_name}_{plot_axes[0]}_{plot_axes[1]}",
     )
-
 
 

@@ -13,8 +13,24 @@ import time
 from urllib.request import urlopen
 
 
-APP_NAME = "DOE RSM 분석"
-APP_DATA_DIR = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "DOE RSM"
+APP_NAME = "sDOE - DOE RSM"
+
+
+def executable_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent
+
+
+APP_ROOT = executable_dir()
+PORTABLE_MODE = (APP_ROOT / "portable.flag").exists()
+APP_DATA_DIR = (
+    APP_ROOT / "data"
+    if PORTABLE_MODE
+    else Path(os.environ.get("LOCALAPPDATA", Path.home())) / "DOE RSM"
+)
+if PORTABLE_MODE:
+    os.environ["RSM_PORTABLE_DATA_DIR"] = str(APP_DATA_DIR)
 LOG_DIR = APP_DATA_DIR / "logs"
 LOG_FILE = LOG_DIR / "rsm_desktop.log"
 MUTEX_NAME = "Local\\DOE_RSM_Analysis_App"
@@ -230,12 +246,12 @@ def main() -> int:
 
     mutex_handle = acquire_single_instance()
     if mutex_handle is None:
-        show_error("DOE RSM 분석 앱이 이미 실행 중입니다.")
+        show_error("sDOE is already running.\nDOE RSM 분석 앱이 이미 실행 중입니다.")
         return 1
 
     script_path = resource_path("rsm_streamlit_app.py")
     if not script_path.exists():
-        show_error(f"앱 실행 파일을 찾을 수 없습니다.\n\n{script_path}\n\n로그: {LOG_FILE}")
+        show_error(f"Application file not found. / 앱 실행 파일을 찾을 수 없습니다.\n\n{script_path}\n\nLog / 로그: {LOG_FILE}")
         return 2
 
     server_process: subprocess.Popen[bytes] | None = None
@@ -243,7 +259,7 @@ def main() -> int:
         port = available_port()
         server_process = start_streamlit(script_path, port)
         if not wait_for_server(port, server_process):
-            show_error(f"내부 분석 서버를 시작하지 못했습니다.\n\n로그: {LOG_FILE}")
+            show_error(f"Could not start the analysis server. / 내부 분석 서버를 시작하지 못했습니다.\n\nLog / 로그: {LOG_FILE}")
             return 3
 
         import webview
@@ -272,7 +288,7 @@ def main() -> int:
         return 0
     except BaseException as exc:
         LOGGER.exception("Desktop application failed")
-        show_error(f"앱 실행 중 오류가 발생했습니다.\n\n{exc}\n\n로그: {LOG_FILE}")
+        show_error(f"Application error. / 앱 실행 중 오류가 발생했습니다.\n\n{exc}\n\nLog / 로그: {LOG_FILE}")
         return 10
     finally:
         stop_streamlit(server_process)

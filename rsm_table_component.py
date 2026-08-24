@@ -134,6 +134,7 @@ if hasattr(st.components, "v2"):
             const integerColumns = new Set(data?.integer_columns ?? []);
             const savedColumnWidths = data?.column_widths ?? {};
             const columnLabels = data?.column_labels ?? {};
+            const resizeTitle = data?.resize_title ?? "Resize column";
             table.replaceChildren();
 
             const defaultColumnWidth = (column) => {
@@ -271,7 +272,7 @@ if hasattr(st.components, "v2"):
 
                 const resizer = document.createElement("div");
                 resizer.className = "column-resizer";
-                resizer.title = "열 너비 조절";
+                resizer.title = resizeTitle;
                 resizer.addEventListener("pointerdown", (event) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -371,5 +372,4 @@ if hasattr(st.components, "v2"):
         }
         """,
     )
-
 
